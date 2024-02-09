@@ -1,0 +1,29 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage('Setup') {
+            matrix {
+                axes {
+                    axis {
+                        name 'OS'
+                        values 'ubuntu-latest', 'windows-latest', 'macos-latest'
+                    }
+                }
+                agent {
+                    label "${OS}"
+                }
+            }
+            steps {
+                script {
+                    if (!env.GITHUB_HEAD_REF.contains('all-contributors')) {
+                        checkout scm
+                        tool 'NodeJS 18'
+                        sh 'npm install --global npm@8'
+                        sh 'npm run setup'
+                    }
+                }
+            }
+        }
+    }
+}
